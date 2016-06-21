@@ -51,7 +51,7 @@ type alias Model =
 -}
 defaultModel : Model
 defaultModel =
-    { autocomplete = Autocomplete.init [] }
+    { autocomplete = Autocomplete.init ["foo", "bar", "qux"] }
 
 
 
@@ -101,14 +101,14 @@ type alias Property m =
 
 {-| Component view.
 -}
-view : (Msg -> m) -> Model -> List (Property m) -> List (Html m) -> Html a
+view : (Msg -> m) -> Model -> List (Property m) -> List (Html m) -> Html m
 view lift model options elems =
     Options.div
         (cs "AUTOCOMPLETE"
             :: options
         )
         [ h6 [] [ text "AUTOCOMPLETE COMPONENT" ]
-        , App.map UpdateAutocomplete (Autocomplete.view model.autocomplete)
+        , App.map (UpdateAutocomplete >> lift) (Autocomplete.view model.autocomplete)
         ]
 
 
