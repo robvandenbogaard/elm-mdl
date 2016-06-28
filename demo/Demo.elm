@@ -13,7 +13,7 @@ import RouteUrl as Routing
 
 import Material
 import Material.Color as Color
-import Material.Layout as Layout 
+import Material.Layout as Layout
 import Material.Helpers exposing (pure, lift, lift')
 import Material.Options as Options exposing (css, when)
 import Material.Scheme as Scheme
@@ -32,6 +32,7 @@ import Demo.Loading
 import Demo.Layout
 import Demo.Footer
 import Demo.Tooltip
+import Demo.Card
 --import Demo.Template
 
 
@@ -101,20 +102,20 @@ type Msg
 
 
 nth : Int -> List a -> Maybe a
-nth k xs = 
+nth k xs =
   List.drop k xs |> List.head
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
   case action of
-    SelectTab k -> 
+    SelectTab k ->
       ( { model | selectedTab = k } , Cmd.none )
 
     ToggleHeader ->
       ( { model | transparentHeader = not model.transparentHeader }, Cmd.none)
 
-    Mdl msg -> 
+    Mdl msg ->
       Material.update Mdl msg model
 
     ButtonsMsg   a -> lift  .buttons    (\m x->{m|buttons   =x}) ButtonsMsg  Demo.Buttons.update    a model
@@ -159,6 +160,7 @@ tabs =
   , ("Toggles", "toggles", .toggles >> Demo.Toggles.view >> App.map TogglesMsg)
   , ("Tables", "tables", .tables >> Demo.Tables.view >> App.map TablesMsg)
   , ("Tooltips", "tooltips", .tooltip >> Demo.Tooltip.view >> App.map TooltipMsg)
+  , ("Cards", "cards", \_ -> Demo.Card.view)
   --, ("Template", "template", .template >> Demo.Template.view >> App.map TemplateMsg)
   ]
 
@@ -173,24 +175,24 @@ tabViews = List.map (\(_,_,v) -> v) tabs |> Array.fromList
 
 
 tabUrls : Array String
-tabUrls = 
+tabUrls =
   List.map (\(_,x,_) -> x) tabs |> Array.fromList
 
 
 urlTabs : Dict String Int
-urlTabs = 
+urlTabs =
   List.indexedMap (\idx (_,x,_) -> (x, idx)) tabs |> Dict.fromList
 
 
 
 e404 : Model -> Html Msg
-e404 _ =  
-  div 
-    [ 
+e404 _ =
+  div
+    [
     ]
     [ Options.styled Html.h1
-        [ Options.cs "mdl-typography--display-4" 
-        , Color.background Color.primary 
+        [ Options.cs "mdl-typography--display-4"
+        , Color.background Color.primary
         ]
         [ text "404" ]
     ]
@@ -201,7 +203,7 @@ drawer : List (Html Msg)
 drawer =
   [ Layout.title [] [ text "Example drawer" ]
   , Layout.navigation
-    [] 
+    []
     [  Layout.link
         [ Layout.href "https://github.com/debois/elm-mdl" ]
         [ text "github" ]
@@ -214,9 +216,9 @@ drawer =
 
 header : Model -> List (Html Msg)
 header model =
-  if model.layout.withHeader then 
-    [ Layout.row 
-        [ if model.transparentHeader then css "height" "192px" else Options.nop 
+  if model.layout.withHeader then
+    [ Layout.row
+        [ if model.transparentHeader then css "height" "192px" else Options.nop
         , css "transition" "height 333ms ease-in-out 0s"
         ]
         [ Layout.title [] [ text "elm-mdl" ]
@@ -247,12 +249,12 @@ view' model =
   let
     top =
       (Array.get model.selectedTab tabViews |> Maybe.withDefault e404) model
-      
+
   in
     Layout.render Mdl model.mdl
       [ Layout.selectedTab model.selectedTab
       , Layout.onSelectTab SelectTab
-      , Layout.fixedHeader `when` model.layout.fixedHeader 
+      , Layout.fixedHeader `when` model.layout.fixedHeader
       , Layout.fixedDrawer `when` model.layout.fixedDrawer
       , Layout.fixedTabs `when` model.layout.fixedTabs
       , (case model.layout.header of
@@ -265,8 +267,8 @@ view' model =
       ]
       { header = header model
       , drawer = if model.layout.withDrawer then drawer else []
-      , tabs = 
-          if model.layout.withTabs then 
+      , tabs =
+          if model.layout.withTabs then
             (tabTitles, [ Color.background (Color.color model.layout.primary Color.S400) ])
           else
             ([], [])
@@ -276,7 +278,7 @@ view' model =
        your html, as done with page.html. Removing it will then
        fix the flicker you see on load.
     -}
-    |> (\contents -> 
+    |> (\contents ->
       div []
         [ Scheme.topWithScheme model.layout.primary model.layout.accent contents
         , Html.node "script"
@@ -290,32 +292,32 @@ view' model =
 
 
 urlOf : Model -> String
-urlOf model = 
+urlOf model =
   "#" ++ (Array.get model.selectedTab tabUrls |> Maybe.withDefault "")
 
 
 delta2url : Model -> Model -> Maybe Routing.UrlChange
-delta2url model1 model2 = 
-  if model1.selectedTab /= model2.selectedTab then 
+delta2url model1 model2 =
+  if model1.selectedTab /= model2.selectedTab then
     { entry = Routing.NewEntry
     , url = urlOf model2
     } |> Just
   else
     Nothing
-        
+
 
 location2messages : Navigation.Location -> List Msg
-location2messages location = 
+location2messages location =
   [ case String.dropLeft 1 location.hash of
-      "" -> 
+      "" ->
         SelectTab 0
-  
-      x -> 
+
+      x ->
         Dict.get x urlTabs
           |> Maybe.withDefault -1
           |> SelectTab
   ]
-  
+
 
 
 -- APP
@@ -323,14 +325,14 @@ location2messages location =
 
 main : Program Never
 main =
-  Routing.program 
+  Routing.program
     { delta2url = delta2url
     , location2messages = location2messages
-    , init = 
+    , init =
         ( { model
           | mdl = Layout.setTabsWidth 1384 model.mdl
           }
-          , Layout.sub0 Mdl 
+          , Layout.sub0 Mdl
         )
     , view = view
     , subscriptions = .mdl >> Layout.subs Mdl
@@ -361,20 +363,20 @@ stylesheet =
          inline css.
        */
   }
-  p, blockquote { 
+  p, blockquote {
     max-width: 40em;
   }
 
-  h1, h2 { 
+  h1, h2 {
     /* TODO. Need typography module with kerning. */
     margin-left: -3px;
   }
 
-  pre { 
-    display: inline-block; 
+  pre {
+    display: inline-block;
     box-sizing: border-box;
     min-width: 100%;
-    background-color: #f8f8f8; 
+    background-color: #f8f8f8;
     padding-top: .5rem;
     padding-bottom: 1rem;
     padding-left:1rem;
