@@ -32,7 +32,7 @@ import Demo.Loading
 import Demo.Layout
 import Demo.Footer
 import Demo.Tooltip
-import Demo.Card
+import Demo.Cards
 --import Demo.Template
 
 
@@ -53,6 +53,7 @@ type alias Model =
   , loading : Demo.Loading.Model
   , footers : Demo.Footer.Model
   , tooltip : Demo.Tooltip.Model
+  , cards : Demo.Cards.Model
   --, template : Demo.Template.Model
   , selectedTab : Int
   , transparentHeader : Bool
@@ -73,6 +74,7 @@ model =
   , loading = Demo.Loading.model
   , footers = Demo.Footer.model
   , tooltip = Demo.Tooltip.model
+  , cards = Demo.Cards.model
   --, template = Demo.Template.model
   , selectedTab = 0
   , transparentHeader = False
@@ -97,6 +99,7 @@ type Msg
   | LoadingMsg Demo.Loading.Msg
   | FooterMsg Demo.Footer.Msg
   | TooltipMsg Demo.Tooltip.Msg
+  | CardsMsg Demo.Cards.Msg
   | ToggleHeader
   --| TemplateMsg Demo.Template.Msg
 
@@ -139,6 +142,8 @@ update action model =
 
     TooltipMsg   a -> lift  .tooltip    (\m x->{m|tooltip   =x}) TooltipMsg  Demo.Tooltip.update    a model
 
+    CardsMsg   a -> lift  .cards    (\m x->{m|cards   =x}) CardsMsg  Demo.Cards.update    a model
+
     --TemplateMsg  a -> lift  .template   (\m x->{m|template  =x}) TemplateMsg Demo.Template.update   a model
 
 
@@ -149,6 +154,7 @@ tabs : List (String, String, Model -> Html Msg)
 tabs =
   [ ("Buttons", "buttons", .buttons >> Demo.Buttons.view >> App.map ButtonsMsg)
   , ("Badges", "badges", .badges >> Demo.Badges.view >> App.map BadgesMsg)
+  , ("Cards", "cards", .cards >> Demo.Cards.view >> App.map CardsMsg)
   , ("Elevation", "elevation", \_ -> Demo.Elevation.view)
   , ("Footers", "footers", .footers >> Demo.Footer.view >> App.map FooterMsg)
   , ("Grid", "grid", \_ -> Demo.Grid.view)
@@ -160,7 +166,6 @@ tabs =
   , ("Toggles", "toggles", .toggles >> Demo.Toggles.view >> App.map TogglesMsg)
   , ("Tables", "tables", .tables >> Demo.Tables.view >> App.map TablesMsg)
   , ("Tooltips", "tooltips", .tooltip >> Demo.Tooltip.view >> App.map TooltipMsg)
-  , ("Cards", "cards", \_ -> Demo.Card.view)
   --, ("Template", "template", .template >> Demo.Template.view >> App.map TemplateMsg)
   ]
 
